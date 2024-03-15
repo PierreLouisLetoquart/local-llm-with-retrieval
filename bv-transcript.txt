@@ -1,0 +1,723 @@
+Alright, first of all thank you everybody for showing up today especially at 9 o'clock
+on a Saturday morning I appreciate it. What I want to talk to you is a
+four grad. What I want to talk about today is a new concept I call dynamic
+binary visualization and I think it's a pretty important and interesting topic
+because I really view this as the future of a first engineering which I think
+is a pretty bold statement but I'll let you be the judge of whether or not
+that's accurate at the end of the presentation. So before we get into
+things I've got to go through the obligatory bioslizing kind of dry and
+boring so I'll try to speed through this. Basically my name is Chris Domis.
+I'm an embedded systems engineer in the Cyber Innovation Unit in the National
+Security Division of the Ptole and Memorial Institute. Now a lot of people
+haven't heard of Ptole but we are the world's largest nonprofit R&D
+organization and we manage some leading national laboratories around the world
+so I'm not here to be a show for my company but we do a lot of cool work
+hopefully some of that you'll see today. So that being right into things what I
+want to talk to you about is reverse engineering and specifically our view of
+reverse engineering as a type of information analysis and in other words
+we get a big binary blob or a big binary data stream and we need to decide
+what is this and what does this do so when we view reverse engineering through
+this lens I think there's two ever present issues that we need to be able
+to address. First is how we can centralize binary information. Second is how we
+use our conceptualization for analysis and I think there are big flaws with the
+way we approach both of these issues and that's sort of what I want to tackle
+today. So let's look at the first problem how we conceptualize binary
+information. So it brings us to what I consider to be an R&D
+analysis up to us. It's also a very exact representation of the data. There's no
+question that what I'm seeing is what the data really is. Unfortunately it's
+unreasonably complex and it's very difficult to deal with information this
+way. So most people tend to go to the alternate approach something like a
+disassembly. It tends to be something very rigid and it's governed by rules
+and structure but it has been a bit of being very succinct and it's very easy
+for us to comprehend this so it's not so much that I have a problem with either
+of these two approaches of conceptualizing binary information. The real problem is
+that there's a giant chasm between these two and it's completely empty. There's
+really no software, no conceptualization approaches that bridge this gap here
+and that's one of the issues I want to address. If we look at the second problem
+how we use that conceptualization of binary information for an analysis of
+binary data. Here what we're looking at is essentially the questions of what is
+this do or where's the vulnerability. Questions, reverse engineers are usually
+interested in. I know guys who can look at a function graph and instantly tell
+you what that function is doing without even reading the disassembly just by
+the way the nodes are connected. Alternatively I know guys who can just
+leave through hundreds of pages of disassembly and instantly find the
+vulnerabilities there and it's a pretty amazing ability but what I find is these
+guys usually have a lot of trouble telling you how they came to their
+conclusions and I think the reason for that is that in this current state
+reverse engineering is very much in art and I think there's a problem with
+that because we're far enough along we've been doing this for long enough we
+should have better approaches for this so I want to fix those problems. I want to
+bridge the gap in our analysis tools find some happy medium between hex
+dumped in our high-level analysis tools like IITAPro and I also want to change
+already from an art to a science so those are ambitious goals so how can we
+accomplish those things. Well I think we have the tools available through two
+things. The first is going to be what I call visual reverse engineering. This is
+going to address the issue of binary conceptualization how we understand
+binary data. The second way we can tackle these problems is through statistical
+exploration techniques and just going to address the issue of how we analyze
+binary information. So this is a goal side of things gets a little dry unless
+you're really into math and it's really goes into too much depth that I don't
+have time to cover today so we're going to mostly skip over this I'll show you
+some of the ways we can use statistics but I'm not going to go into the
+algorithms into much depth. What I really want to focus on is the visual
+or reset of thing which I think is really more interesting approach for
+most people. So let's dive into that and see what I mean by visual reverse
+engineering. So the idea here is that we can take a confrontational and
+difficult task and translate it into a problem that our brains do very well
+for so in this example we're going to take the difficult task of understanding
+binary information and translate that something we're very good at in this
+case that is understanding visual information so our visual cortexes are
+very powerful we are really good at processing 3d and spatial information
+so if we can find a way to translate binary information to visual
+representations we can analyze it much faster than normally possible. So in
+other words I'm going to find a way to traverse a hundred thousand pages of
+binary garbage in a very short amount of time and we're going to understand
+exactly what was in there just as if we have been looking at the hexadecimal
+itself. The fundamental idea here is that if we fundamentally change the way we
+process binary information we can find unexpected ways of making sense of it.
+So that's really what I'm trying to accomplish and if you've never spent
+30 hours looking at a hex done wondering what the heck is this stuff you might
+be wondering why bother our current analysis tool is powerful enough that
+they are already zoo what we need and the answer is there absolutely not and
+there are a lot of reasons for that but I want to focus on two big ones. So the
+biggest issue I see is that our best reverse engineering tools are completely
+dependent on a known structure so the problem with that is that information is
+evolving faster than our tools can keep up with it so every day there's a new
+instructions that there's new data format and file format some new format
+that we need to be able to support and our tools have to constantly play catch up
+in order to be able to analyze this type of information and it's a losing game.
+The stuff's just exploding at a rate that we can't keep up with so being tied to
+structuring this way is hugely problematic. We need to find a better way of
+analyzing information that's completely independent of structure if we want to
+be able to keep up with things. The other issue might be colloquially called
+Gates's Law named after that guy that we all love so this essentially says that
+software is getting slower more rapidly than hardware becomes faster it's
+basically the counter of the Moore's Law and what this means for a reverse
+engineering perspective is that the amount of information we need to
+analyze is growing exponentially so if processor power is doubling every 18
+months the number of instructions that that processor is actually executing is
+growing at a new and faster rate so from a reverse engineering perspective that
+means we have a lot more information to analyze and we just can't keep up
+because our tools aren't becoming exponentially more powerful there aren't
+a whole lot of new reverses and ears able to attack these problems and we're not
+getting any better at collaborating on reverse engineering problems which means
+this is another losing game we're never going to be able to keep up with things
+at the pace we're currently going so I think this is a really big problem
+reverse engineering and if you haven't run across this already I think you can
+see this more and more in the future so this needs to be addressed and I was
+sort of shocked to find when I started investigating this that there are only
+really two people who have done any sort of real research into this field do you
+guys name great content out of Cartesian both brilliant guys I want to talk a
+little bit about some of their work in this field and talk about how we can
+extend what they've done so Conteo talked about first he's a smart guy
+teaches at the United States Military Academy and at 2010 at black at he gave
+a presentation that still today is the best black hat presentation I've ever
+seen so I'll talk a little bit about what he talked about there and for Katie
+the other guy I want to look at he runs a small software company called Nolkeube
+and he runs a blog called Corte.c so if you're interested in malware or
+reverse engineering it's a great blog to read now introduce some of his ideas as
+well but let's look at Conteo first. Conteo posited that even in unstructured
+data there is some type of structure and barring any other information about
+what type of information we're looking at we can assume that sequential bytes
+have some kind of implicit relationship so Conteo's only dilemma is how do we
+conceptualize and understand our relationship if we have no idea what it
+is and so here's where Conteo's genius comes into play he came up with a very
+simple approach for visualizing the relationship between sequential bytes
+and data he said what we're going to do is take sequential bytes and a string
+of information and translate those to xy coordinates so in this case if we have
+a string like Derby time where it's going to take all the switch of
+y from the string and translate those to xy so d is ASCII hex 64 e is ASCII hex
+65 I've done 64 65 xy coordinates we're just going to plot those in a
+partition system here and when we do that what we start to see is remarkable
+remarkable patterns for any type of information we're trying to look at so
+here's what Conteo found when you looked at ASCII information so even those
+algorithm had no concept of what type of structure was within ASCII information
+we see clear structure and patterns in the visual representation through this
+algorithm so what we're actually seeing here these different artifacts are
+each caused by some type of structure some type of relationship in the ASCII
+data so this caused by lowercase letters followed by lowercase letters
+this is uppercase followed by uppercase uppercase by lowercase lowercase by
+uppercase these various lines are caused by slash r slash n spaces so all those
+implicit implicit relationships the way that data is intrinsically laid out
+within ASCII data results in structure that we can see here and you found that
+regardless of what type of information you're looking at there's clear
+structure so here he's looking at image data here he's looking at audio data and
+the benefit here is I can almost instantly learn to recognize these images
+for what they are whereas trying to analyze that information at a head
+to decimal level would take a tremendous amount of time so I think this was a
+big step forward in improving the way that we conceptualized binary information
+but that's really just the tip of the iceberg and that's where we started our
+investigation but before I get into that let me look at some of the stuff a guy
+named Cortese did so unfortunately I had a shot most of Cortese slides for the
+sake of brevity but he found a way to use a fractal called a Hilbert curve to
+improve the way we conceptualized binary information essentially what he found
+is that if we map data to this curve first before presenting it to the user
+we have this important aspect of the preserved locality which assists our
+brains in interpreting information so I'll go into the details of that here he's
+a map data to Hilbert curve and here he's laid things out in a more intuitive
+fashion line by line but what this shows us is that we get more detailed
+information from the Hilbert translation when we look at it this way so tiny
+little artifacts like this little red block here indicate unique features inside
+of this data set that I can't see without mapping into the Hilbert curve first so
+we make extensive use of this Hilbert curve in our software and I'll leave it
+up to you to visit Cortese's site if you're interested more information about
+how that can be used but that basically brings us to Sock will reap in developing
+I thought these guys had some really great ideas content in Cortese are two
+brilliant people but I felt like they didn't bring their ideas to their fullest
+potential they didn't pursue things as far as they really could have gone so I
+wanted to take it further than they ever did so content has some software called
+Ben Vaze that you can get at his website and I tried to use that for binary
+analysis but it just wasn't robust enough it couldn't give me enough
+information to do any sort of meaningful analysis on binary data so I wanted to
+go for that similarly Cortese had these Python scripts that could generate these
+images but reverse engineering is a very interactive process so I needed
+interactive software I didn't want to be staring at some static image and trying
+to get information from that so that's sort of where we picked things up and our
+big goal when we were designing the software was to find a way to understand
+binary information that was independent of format and that's the key that's
+what sets us apart from any other tools that are out there right now we can
+analyze unknown code format deviations proprietary structure anything at all
+as easily as we can analyze well structured data and that gives us a
+powerful advantage over a lot of the traditional reverse engineering tools
+it gives us the ability to analyze structure a priori without any part
+of knowledge about what that structure really is so software we've developed
+is called cancer dust and I am a ridiculously nerdy person actually have a
+top 10 list of my favorite mathematicians and your cancer is a second on my list
+I want his names of software after him so that's where software gets named for
+some reason people always think I say cancer dust it's a it's a weird name but
+it's not that weird so this is not cancer dust it's cancer dust and really
+I'm gonna be demonstrating the software today but what I'm really trying to do
+is illustrate concepts it doesn't need to be the software anybody could implement
+this stuff and I'd like to see more of this in the future it's just right now
+this is the only thing available to illustrate these concepts so let's
+actually dive into things with a demonstration of our software I want to
+look at give you a quick overview of essentially our interface first so that
+you can sort of follow what I'm doing as I'm using this I'm just a little
+bottle load up all this pre-competed data that we have so what we've done is
+launched this up it are loaded I don't know pad plus plus for us to explore and
+what we have on the left here are two navigation panes this gives us very
+intuitive layout of binary information within this file what I can do is select
+a small window within this information on this left pane and I can narrow that
+window on the right pane here and this window here gives me the visual
+representation of the binary data within this window and over here are all the
+different translation techniques what different ways that we can transit this
+binary information into visual information so we have some very simple
+straightforward ones like I've got a hex header here even on trying to replace
+hex editors there's really no alternative in some situations or we have some
+common statistical analysis methods like looking at histogram view of byte
+distributions but I don't really want to look at those today those aren't really
+very interesting or new what I want to look at is some of the new methods we
+have to analyze information so first let's examine some of Conti's ideas so
+Conti had this idea of this digraph system and I'm going to call this a
+two-two-fold system because I've extended this other dimensions but let's
+look at x86 code and Conti's digraph so this is what x86 looks like in this
+digraph view and the striking features you see here are essentially these horizontal
+and vertical lines so the the most amazing aspect of Conti's research that
+I haven't mentioned yet is that similar classes of data have similar
+patterns associated with them so any type of machine code I look at is going
+to have similar features as to what I'm looking at now but they're all going to
+be visually distinct so I can load in something very similar to x86 like x64
+and it has a similar but clearly distinct pattern so the benefit here is
+that well I can look at this hex and I can actually tell you that this is x64
+but the only reason I'm able to do that is because I've been looking at
+information like this for three years it takes a tremendous amount of time so
+there can recognize information at this level but it takes only three minutes
+to learn to recognize these pictures and the benefit here is I can look at
+anything even something not familiar with like I've never worked in Power DC
+but I can instantly recognize that I'm looking at some type of machine code
+based on these visual patterns even though I would never have any idea I was
+looking at machine code based on the hex dome so that's the benefit of
+visualizing information in this way gives us a much faster way of understanding
+what type of binary data we're looking at
+so I thought Conte had a neat idea with this two-tuple system but what I found is
+you can't always get the information you want from a two-tuple system
+sometimes you need to go to higher dimensions and the more dimensions you add
+the better your analysis can be so what I found is that when we extend this to
+three dimensions we can actually get much more in-depth information than we
+could ever get with Conte's original idea so we can pull up our three-dimensional
+visualization of notepad.exe is what I dropped into here and the idea here is
+a same concept that I'm going to structure the data and watch the way the visual
+patterns change and through these pattern changes I can understand exactly
+what I'm looking at within this file without ever having to go to a hexadecimal
+level without ever trying to have to understand binary information at something
+this low level so it gives me a much faster more powerful way of analyzing
+and understanding information.
+So just like we have all these different visualization techniques here what you'll
+find is that some techniques are good for some types of analysis others are good
+for other types of analysis and similarly some translation mechanisms
+within the technique tend to be good for finding certain types of data so right
+now we're translating binary fragments to three-dimensional information but we
+can actually change the way we translate that so we can translate it to two-dimensional
+information first and then later these two-dimensional images on top of one
+another to give us a different representation of the binary information
+we can also change the coordinate system so what you'll find is some types of
+information are more easily analyzed in the spherical coordinate system some
+types are more easily more easily analyzed in the cylindrical coordinate
+system and you learn to just get a feel for what the right approaches for the
+type of information you're trying to find and I don't want to get too sidetracked
+because I don't have a ton of time here but if you ever get really bored sometimes
+looking at hexadecimal for hours and hours on end can be mind-numbing so there
+are a lot of Easter eggs that I've put in here just whenever I got really tired of
+working with this stuff particle effects are fun to play around with so
+whenever you're done being being lazy you can just go back to work so there's
+really no reason for that but it's some fun stuff like that so let's sort of the
+extensions for contis original ideas I've even investigated so that some of the
+ideas we can investigate for some of Cortese's work so Cortese had this idea
+of viewing information through Hilbert transformations and he also looked at
+visualizing entropy so what can entropy tell us well if you're not familiar with
+entropy it is simply a measure of randomness and areas of high entropy are
+high randomness into the areas that are very useful for reverse engineers so
+high entropy areas could be something like encryption keys you can also
+indicate packing you can also look at entropy differentials in order to find
+key features of information so for example x86 has a certain amount of
+entropy typically associated with it but if you try to obfuscate your x86 code by
+adding all sorts of weird jumps or odd constructs that's going to implicitly
+change the entropy associated with your code so by visualizing the entropy we can
+find changes in my details and data that we couldn't normally see from a raw
+hexadecimal view so some of the more obvious examples where entropy are
+useful one would be malware analysis so one thing malware loves to do is it loves
+to pack itself which towards simple static analysis techniques so I dropped
+up piece of malware in here we can visualize the entropy within this piece
+of malware where pink is very high entropy and blue is much lower entropy
+so this entire region of this malware image is all packed stuff which means
+I can't really work at it right now but the malware entry point is going to be
+in this lower entropy region and this how it's going to decompress basically in
+this low entropy region is going to decompress the packed malware so as a
+reverse is near this gives me valuable information about where I want to start
+with my analysis I want to begin my analysis in the low entropy region to
+understand how it's going to unpack the high entropy region so this is an
+example of how we can get some key features and a better idea of what we're
+looking at through these metric visualization techniques another one I
+want to look at is a commercial software one of my favorite hex editors and I
+don't want to get them in trouble so I'm not gonna name any names but you might
+be able to recognize it so if we look at the entropy within this commercial piece
+of software we see a very high entropy region here so I was a little bit
+curious about what that was so we can zoom in on this high entropy region and
+try to find out exactly what this is if we pull up our hex view here and mouse
+over this what we'll see at the very beginning of the high entropy region is a
+PNG header so PNG is the type of compressed image format which means it's
+just a compressed image that's what causes the high entropy there so that's not
+too interesting if you're a reverse engineer on the other hand if you're
+a forensic analyst you might be interested in images or something like
+that memory dump so that could be useful for you but as a reverse engineer I'm
+just gonna skip over this part I was interested in this little detail down
+here and if we zoom in on that in a hex view it doesn't look like much but I
+investigated it more in i-2 Pro and that turns out to be the key checker
+algorithm in this piece of software they've tried to obfuscate it and pack it to
+prevent you from stealing your software but in doing so they've altered the
+entropy for this region of information which gives us a clear indication that
+that's a key feature that we want to investigate more so we have dozens of
+different metrics that we can run on this binary information not just entropy
+and we can get all sorts of interesting details like that from these various
+metrics so that's sort of a idea that's that cortesi investigated you know it's
+about a natural practical example of dissecting a file using these techniques
+I'm gonna look at notepad.exe here and obviously you can drop this file into a
+tool like HIDAPRO and I will tell you exactly what the different pieces of
+notepad.exe are but it's only able to do that because it knows exactly how to parse
+a PE file it's basically governed by a set of rigid rules and with those rules
+and break apart this information but we don't want to be tied to those rules we
+want some other way to analyze information so that's where this software
+comes in without ever knowing anything about how a PE file is laid out we're
+able to dissect the software through these visualization techniques so what
+I'm going to do is select a small window at the beginning of notepad.exe and
+begin analyzing these visualizations in order to understand exactly what
+information is in this file so this is a 3D visualization for I see X64 data
+you can tell by these heavy bands right here and going across there in a vertical
+one here tell me that this is X64 and as I gradually scrubbed this file I'm
+gonna see new artifacts so right here we saw these purple stuff up here in the
+middle here and what this is it's essentially a set of small cubes inside
+of our larger cube a set 3D pattern for English ASCII information and if you
+look really closely you can see that it's projected onto each face of this cube
+so here's a little projection of those cubes here's a projection here that actually
+tells us that these are no terminated strings what does that mean from
+reverse reverse engineering perspective not a lot but it's just an example of
+helping get very detailed very accurate information about what type of data
+we're looking at through these visual representations so if we continue
+scrubbing through here what we're going to see next is artifacts associated with
+the bitmap image specifically working at it in RGB image here and if we pull
+this up so what you see here is a long streak moving through the middle of the
+cube and then that streaks projected onto three faces of the cube so the fact that
+is projected onto these faces can tell you that there's an unused alpha channel
+in this image information again as for the first instance that sounds something
+I'm overly concerned with if we continue we'll see this overcome with static
+which suggests we're going to have impressed region in this file and if we
+go to the end we'll see more artifacts associated with a different type of
+image and you can actually see the no-pad icons appearing in our in our bite
+plot view of things so just an example of how we can quickly dissect information
+if we want we can actually switch to other visualization techniques to get
+more information out of this so for example here is where I see this very
+clear distinct bitmap data pattern and using our metric map visualization you
+know living your layout and shaving by bites we can actually pull out this image
+even though our software knows absolutely nothing about how big maps are laid out
+just by changing the way that we translate that information to visual
+abstractions we can actually pull out what that image is so in this case it's
+the gimme on Windows logo which I don't even think appears in no-pad.exe but
+they use 10% of the file for that so yeah that's Microsoft's way those are
+sort of the ideas that other people have come up with me we've been sending those
+to make those more interactive and more useful for real analysis but now I want
+to get into the ideas that we've developed ourselves so one of the more
+powerful approaches we found is binary classification so what I wanted to
+accomplish here is essentially what we saw earlier just a second ago is going
+through this file and identifying the regions based on these patterns but I
+wanted to automate that process to a statistical analysis and that's what
+we've managed to do to this classification algorithms what we do is I take some
+binary data that represents a sample of something I'm looking for so for example
+if I want to find x86 I can crop compiled x86 out of some other file and
+supply that as a template to my software so the key here is I'm just saying this
+is what x86 looks like I'm not I'm not completely defining x86 I'm not giving
+it a grammar I'm not telling you how to parse it at 86 I'm just giving it a
+sample of x86 code I'm going to give it a whole bunch of these different
+templates and from these templates our software builds what are called in
+gram models and we do a statistical algorithm called naive based classification
+algorithm in order to classify regions of the file as most closely matching
+various templates so now I can feed any arbitrary file into our software and it
+will run it against these templates in order to identify the different regions
+so here it's saying well this region most closely matches from a statistical
+pattern perspective this most closely matches your x86 template this most
+closely matches your compressed template this looks like ASCII here so it's a
+it's a neat automated way to do file carving but it has used as far beyond
+that so one of the things we'll see coming up is using this to identify
+custom and proprietary formats we'll actually look at finding custom
+compressed modules inside of a firmware image through this type of statistical
+matching technique this also lets us examine unique instruction sets so one of
+the things malware loves to do is invent their own instruction set and run it
+inside of custom virtual machine and if you're used to dealing with well
+structured information you don't really appreciate how hard it can be to
+differentiate between code and data but in some of this malware that can be
+incredibly difficult but with these statistical matching techniques we can
+automate that process as long as I can find a small snippet of instructions
+from this piece of malware or whatever I'm looking for I can supply it as a
+template and then find that throughout the rest of the file based on the
+patterns present in that data and we're not quite here yet but where I eventually
+want to get to with this is being able to identify data and code features so say
+I'm looking at a file that's entirely x86 but I want to find cryptographic algorithms
+in that file well cryptographic algorithms are going to have a different
+distribution different patterns of bytes and instructions than normal x86 so I
+can feed in a cryptographic x86 algorithm and say find what stuff that looks like
+this it will be able to parse that it'll be able to parse through a file and
+look for things that statistically matched that it'll be able to say well
+here are the other cryptographic algorithms within this file so it's a
+really powerful idea I think that's going to save us a lot of time in reverse
+engineering one of the other things we've looked at is what I call call
+ballistic parsing so conventional parsing conventional
+configional disassembly falls into two categories usually recursive descent
+which is what IDA is for cursive descent assembly starts at a beginning point
+and it tries to follow the path of execution when it's doing the disassembly
+linear sweep disassembly is something like aux dump it starts at the beginning of
+a file and just moves forward then nearly it doesn't care about where
+execution would actually go to both these have their pros and cons but well I like
+the information you get from these you can get a lot of important information
+about how functions relate to each other the problem is I didn't want our
+software to be dependent on any specific type of structure I don't want to be
+tied to x86 or harm like that so I don't want to give a knowledge of how to parse
+these things I still want the ability to gain the benefits of parsing so what
+we came up with is what's called probabilistic parsing we're actually able
+to identify call graphs inside of an arbitrary binary file through statistical
+patterns rather than grammar definitions so what we're looking at here is essentially
+a call graph for a file that I gave that was parsed using statistics rather than
+disassembly directly this gives us a really powerful ability to analyze
+information so I can run the exact same algorithm on at x86 or on arm or on
+some instruction set that comes out tomorrow that nobody's ever seen before
+and will still be able to generate these function graphs and I'll show you
+coming up how that can be incredibly useful because what I want to look at
+next is an actual case study how we can use these techniques we talked about for
+a real world example of simplifying their lives as for first-stage years and
+what I'm going to look at specifically is a topic brought up by a group called
+the Invisible Things lab so if you're not familiar with these guys it's just a
+small group of people I think it's three guys in a girl who are really really
+brilliant they're coming out with some of the best exploits I've ever seen and
+unfortunately I can't pronounce their names but they gave a presentation that
+black had a few years ago that they caught attacking Intel BIOS and it was a
+really neat idea that's what I want to look at and work depth using these
+analysis techniques so their goal in this paper was to bypass EFI signing
+protection and just a little bit of background EFI is basically a BIOS
+replacement it's supposed to be more structured more extensible and more
+secure and one of the things you can do with EFI is you can one of the ways it's
+more secure is it can't be configured so that it requires signed images if you
+want to reflash your BIOS or EFI that way you can't get unexpected code sold
+in the firmware of your system because it has to be signed so that's supposed to
+make it more secure but these guys had invisible things wanted to get around
+that so what they did is they started investigating EFI images and they found
+that the image itself is not signed the images only an envelope with a CRC
+checksum but inside of that envelope are signed modules so they found signed
+module after signed module after signed module and then they came across an
+unsigned module which was a perfect attack vector we can flash this unsigned
+module without having to sign it which gives us a way into the system so why
+would you do that why would you require signing on these things to improve
+security and then give this a give the opportunity for an unsigned module well
+reason for this is the unsigned module is boot splash logo so when you first
+press the power button on your PC the image that comes up is the splash screen
+that's an unsigned module in the EFI system and the reason they leave that
+unsigned is because they want OEMs to be able to add their own splash screen to
+the system without having to go through the trouble of signing things so that's
+an interesting possibility for an exploit here and they found a way to
+leverage this to a their advantage their goal was to get unsigned code
+execution they want their own code running instead of the BIOS so they can
+get early control of the system but they can't update the code the code has to
+be signed they can only update the bitmap but what they did is they found a
+vulnerability in the bitmap parser for the splash screen so most EFI code comes
+from this EFI template code provided by Intel and then IBVs are independent
+bios vendors use that code for their EFI development so finding out vulnerability
+in this template code means that you're finding a vulnerability in a whole
+every EFI system out there so they found that they could flash the bitmap with an
+invalid image by manipulating the width and height to get an overflow when this
+image is parsed and through that overflow they can get code execution early on and
+the BIOS in the BIOS boot process so that's pretty powerful ability and I
+want to look at that in more depth what one observation we need to make before
+we go forward is that no one is really EFI and invisible things sort of glosses
+over this fact they make it look like this is a fairly straightforward hack but
+it's not at all because BIOS vendors have a lot of legacy code and they're
+gradually moving towards EFI but they're not really willing to give up their
+legacy code yet so what you find are systems that are 25% EFI and 75%
+legacy BIOS or something like that what that means from our perspective is that
+we can still use this vulnerability but we're dealing with much less
+structured than EFI would provide because we're dealing with more BIOS and BIOS is
+very unstructured less structure means more headache but it also gives us a
+perfect opportunity to use this tool into Philips which is very resilient to
+unstructured information so I'd feel covered the actual exploitation process I
+want to figure out everything else the first step is going to be to choose a
+victim laptop I just chose this junk laptop I had lined around that's held
+together by duct tape and staples and scrap pedal basically so I didn't care
+if I break this thing there's a perfect system to test on you go to the laptop's
+website download the executable for a BIOS update and what you get is essentially
+this you have to do some quick R-E they've tried to hide the flags from you from
+so that you can't spit out the actual EFI image but what you see is all I did is
+they added one to each aspect character in the flags so if you just subtract one
+from all these strings you can figure out what the flags for the exer and
+there's one called right-and-round file so when you give it the right-and-round
+file flag it'll spit out the EFI image everyone analyzed so let's go ahead and
+pull this image up and write up and we don't get a lot of information here
+because I didn't deal with unstructured data like this and you had to know a
+little bit about how execution begins when a processor is first powered on
+but if you know that then you can figure out where the entry point of this
+information is essentially right around here is where execution begins when your
+computer first starts up and what we want to do is go trace execution down to
+the bottom here you've got this function loop down here which is essentially
+executing a list of functions that they provide here and most of these have to
+do with hardware initialization we're not too concerned about most of these but
+the very last one I am interested in if we go to that see what they're doing is
+they are loading in this module this happens to be a module that's undergone
+custom compression it has no standard headers it has no type of format that
+anybody's ever seen before which makes this very difficult to analyze but what
+they're going to do is decompress this module with this decompression routine
+so I looked at this module a little bit but it wasn't the module we're interested
+we're trying to find the module that has to do with the splash screen but if you
+look through this file you won't see you won't see anything that looks at all
+like a splash screen it turns out it's in another module somewhere we need to
+find where that other module is so odds are they're going to be using the same
+decompression routine so one way to try to find the other modules is look at
+extras to this decompression routine there's only other one other place where
+this is called unfortunately this function is not called anywhere else in
+this binary it turns out this function is only called from that compressed
+module so in order to find out what parameters are being passed this function
+we're going to find the other modules we need to reverse this mirror that first
+module that we found and we could be chasing our tails for a very long time
+trying to go down that path to find the splash screen module this where
+statistical analysis can help us in the reverse engineering process so what I'm
+going to do is connect to the ID database pull this into our software here
+and fire this up and what I did is I went to the module that we had already
+found
+and I basically highlighted all this cropped it out and supplied it as a
+template to our software so now I can run our statistical matching algorithm
+against this database and pull out regions of this file that most closely
+match that compressed module so it's something we really can't do with
+traditional tools because this module has no kind of standard format for us to
+look for but through a statistical analysis we can find things that look
+like this module and it does a pretty decent job where I'm found yes 86 code
+that we were already looking at is over here here's the original module that we
+gave as a template found a compressed region here but it couldn't identify
+what this exactly was it found some ASCII here most importantly it found
+this region here is the reason that statistically matches the module that
+we gave it so this is all the other modules in this this file that we can
+now pull out and analyze and work depth so I mean find out exactly where those
+begin
+so we try to do that
+turns out they start right up here so now let me know where the models begin I
+can prop these out and I use a plugin for a familiar with ID that you should know
+about a dining principal who wrote a plugin called x86 MU which allows you
+to emulate x86 code so using this you can actually emulate that decompression
+routine and give it the modules that you found in order to decompress these
+modules without ever having to understand the algorithm so that's a
+really neat ability and what you end up with are these 20 or 30 some modules the
+problem is they're also proprietary structure which means if you run a
+something like file on them to try to figure out what they are they're all
+basically data we get two false positives here which are pretty common and with
+the file command so here's normally where you have to start looking at these
+things in hex editor in order to figure out what these are but here's another
+chance for us to utilize the binary visualization powers of the software in
+order to figure out what we're looking for so what I did is I tatted all those
+models together and I'm going to drop those into here and use
+contis technique of a two-tuple system in order to visualize the information
+within these files what I'm kind of find is something that looks like a bit
+mad image I'm looking when I scrub through this and look for a pattern that
+looks like bitmap data and that will be theoretically the splash screen that
+we're looking for in order to implement this exploit so right here is pattern
+I recognize it's a little bit faint but I think we can pull this a little bit
+stronger this is a pattern I've recognized as associated with four bits
+per pixels bitmap image and if we try to zoom in on this region and change the
+way we're rendering this information we can actually see that this is indeed the
+splash screen that we're looking for
+so anyway so that's delm that's essentially the system we're working with
+so that's the splash screen that would come up so if we mouse over here we can
+see where that is in our padded image we can find out that this was part of this
+mod E to pull that up in a hex editor what you'll eventually see is that this
+is actually following the bitmap format but they stripped off the bitmap header
+the bitmap header is the characters BM at the beginning of a file and all they
+did is delete those two characters which breaks all of our normal analysis tools
+means we normally can't recognize this information for what it is but if you
+open that up in a hex editor and add those two characters back in you can
+then drop it into something like ONO which understands bitmap information very
+well and ONO can show you exactly where the width and height fields in a bitmap
+bar so that you can modify those in order to implement this exploit without
+having to do any serious RE so at this point we have everything we should need
+in order to do this exploit so it should just be a matter of repackaging this
+modified splash screen shoving it back into the envelope and trying to flash
+the computer unfortunately it doesn't work if you try to do that it's not a
+signing issue the modules are signed in the bitmaps not so it's okay that the
+bitmaps not signed it turns out it's an issue with the envelope checksum so in
+order to get this flash we need to fix the checksum in the envelope so this
+gives us another perfect example where we can use some of these analysis techniques
+we found so what we need to do is find out what type of checksum they're using
+and where it's stored within this binary EFI image so what I'm going to do is
+pull up that very first module we found the raw the raw EFI image doesn't do much
+other than initialize hardware so it's pretty reasonable to expect the first
+module that is extracted and executed it's going to have something important
+interesting unfortunately when you load that module into Haida you get nothing
+because Haida doesn't recognize this format it doesn't know where it began
+it's waiting for you to tell us what to do so that's a problem for us but again
+that's where this type of software comes into play so we're gonna import our
+Haida database again and what I want to show is the statistical parsing method
+I discussed earlier what this does do is it shows up more
+less let's say what this let's do is find relationships between functions via
+statistical patterns rather than trying to parse things like Haida would try to
+do so I can select any arbitrary window within this file and view the
+functional connections within this region now I don't know where the checksum
+routines are so I can view this entire file and since that's going to be a lot
+of data I'm going to crank up the number of nodes we're looking at we
+know with this ridiculously awful horrible mess it looks like spaghetti
+monster to me but what this is showing us are essentially a call graph for this
+entire file and when I don't know where else to begin I usually like to look at
+who's called the most so I can shape this by who gets called the most and this is
+telling me that statistically speaking there's almost certainly a function here
+that is called more than any other in this file and if we go to that position
+in the Haida database we'll see that indeed there is a function there and I'm
+not gonna walk through the reverse engineering of dysfunction but if you do
+that you'll see it's really nothing interesting it's just a dispatch
+function function it's a way to wrap other information so I'm interested in the
+next most called function which is going to be statistically speaking most likely
+right here so if we look at that guy again it is a function we pulled it out
+correctly and we see what it calls which I'm going to see is it accessing some
+interesting characters that accesses percent plus minus 0 9 l h c s x d you
+might recognize these as placeholders tokens from a print f so d is going to be
+decimal s is string x is hex is care so what this is is a print f function but
+if you look at it in a little bit more depth you'll see it's not just print
+that these aren't going this print is going to the screens actually going to a
+debug port which means that this is some kind of debug print f so if they're
+printing out diagnostic information that is definitely something I'm interested
+in so I wanted to explore this function just a little bit more so right now this
+whole thing is kind of a mess so we can crop out just this function and I'm
+going to change this to a two-dimensional layout because it's a little bit easier
+to work with instance two dimensions when you're dealing with a smaller amount
+of information so here's my print f function and all these are the nodes
+that call print f so right now I'm not really interested in which one's called
+the most I'm rather interested in who's calling print f the most so I can change
+the way I'm shading information and pull out this function here that is
+again statistically most likely to be the one that's calling print f more than
+any other function in this binary file so if I make that into a function I see
+just as statistics predicted this calls print f quite a bit but it turns out
+this is just messing with ports that's really not something I'm interested in
+unfortunately the rest of these all these nodes are about the same size
+which means all these are calling print f about the same amount but two of these
+were more interesting than the others these guys here and these guys here
+because these indicate a higher level of complexity than we see with the other
+nodes because not only is this node calling print f but one of its children
+one of its sub functions is also calling print f so that's something I
+wanted to investigate and more depth so if we look at those guys we see this
+one we just looked at is a boot be flash recover so flash recovery algorithms
+are pretty interesting but not really what I'm looking for so I wanted to look at
+this other one instead if we try to pull out that function I'd already found it
+since we gave it some starting points this turns out to be what we're looking
+for validate rb that's remote BIOS updates CRC so we specifically found a
+CRC checksum routines here we find right here this is the offset within the
+image file that we need to replace the CRC at and if we look inside some of
+these if you don't know much about CRC there's a lot of different versions of
+it maybe different magic numbers different algorithms so we need to know
+exactly what version they're using if we want to replicate the correct CRC for
+our file so here's the magic number they're using for their CRC checksum and
+in here's their actual CRC algorithm so at this point we have everything we
+need to duplicate the correct CRC for our modified image and again I can't
+stress enough that what we did is we pulled out that information through
+statistical and pattern analysis rather than by parsing things like I did we
+tried to do which gives us great advantage when we're dealing with things
+that we don't understand the structure for so at this point we can repackage
+our our our modified splash screen successfully flashed a computer and I
+didn't try to get code execution on this thing I wasn't really interested in that
+aspect I just wanted to quickly dissect this so this whole thing took about nine
+hours using this software and most of that was spent in reverse engineering
+their their compression algorithm because we had to find a way to recompress
+that splash screen image I tried to I want to know how hard it would be without
+using this software so I tried to begin afterwards and took about 37 hours
+without these statistical and pattern matching algorithms that we've used so
+just an example of how this can really help cut down reverse engineering time
+make things a lot faster than they would normally be so it basically concludes
+what I wanted to show you really the what I'm trying to get across is we need
+new ways to understand and analyze binary information because we can't keep up
+with the way things are changing using our current approaches and if we don't
+try to find new ways of doing things already is going to stagnate and we're
+just gonna lose the battle so the point isn't use this software at all it's just
+the software right now is the only way to do some of these techniques it's really
+a more about thinking differently finding new ways to understand and
+sexualize information is what we need to do in order to move forward so if you're
+interested in the software there's a demo available at our website you don't
+have to memorize the address if you just search for cancer dust that's
+cancer best not cancer dust if you look for cancer dust binary visualization
+you'll come across our website and I don't have the demo posted there yet but
+I'll try to put that on there and it'll give you a couple of these visualization
+techniques to play around with if you're interested in them and really we've
+just been started with the software we're going to be developing this a whole
+lot more in the future and really add some powerful mathematical and statistical
+analysis techniques to make this really powerful and hopefully we've just
+scratched the surface and hopefully I'll be back here next year with a
+updated version to show and I hope everybody will attend to see that so
+that's all I've got looks like we have about five minutes if anybody's got
+questions that's a that's a really good question and I don't really know of any
+very good ones yet so one of the things I didn't have time to show that I might
+as well pull up now that I have a chance is these translation mechanisms
+transiting this information visual abstractions this way is a really
+powerful technique so I tossed in our X64 file which we saw earlier there's a
+pattern like this here I took that same file and I inverted all the bits and it
+has a very similar pattern here I took the same file and I x-word it was a
+random 8-byte key and it still maintains its pattern so the fact is where we've
+got some really powerful techniques for visualizing and understanding this
+implicit relationship between elements in this data set and even when you try to
+damage the actual value of the elements the relationship remains which means
+we can still analyze information this way so it's a very hard thing to sort
+of think so far we haven't really looked at that side of thing we've been looking
+at mostly analysis of static images is what we've been focused on as we move
+forward we're going to be looking at adding additional layers so decrypting
+things looking at patterns and that type of information so hopefully next year I'll
+have a better answer for you
+another you can also pull from I does database
+thank you for signals analysis so yeah so that's one of the next big things on
+our list is we want to be able to plug this into streaming information we also
+want to give a plug this into processes address spaces so I can visualize the
+entropy as malware unpacks itself or I can visualize anomalies in your network
+data streams we're not there yet because mostly what I do is firmware
+versus engineering and I designed this to help me with what I do but we'll be
+moving there in the near future
+correct
+it's it's complicated but at a basic level what we're doing is we have enough
+people who are very familiar with the way different instructions are
+constructed and they all have similar patterns between them where particularly
+function calls are usually specified as a relative offset from the current
+location it's hard to specify them as anything but that so we're able to
+essentially treat every offset as a relative offset to another location and
+then we used to physical filters to filter out the noise from that and find
+what is most likely actual jumping call instructions in order to identify
+function boundaries
+right well so I've written this in C sharp and I'm using a 10a for the
+visualization techniques which I would not recommend to anybody it was a horrible
+choice to go with but that's what I'm stuck with now because I'm too deep to
+go back it actually
+it does okay but it's it's brutal to work with all right well thank you
+everybody for showing up especially just early on

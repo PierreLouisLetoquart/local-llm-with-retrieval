@@ -1,0 +1,16 @@
+{
+  "name": "3-clean-llm",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@langchain/community": "^0.0.38",
+    "cheerio": "^1.0.0-rc.12",
+    "langchain": "^0.1.27"
+  }
+}
